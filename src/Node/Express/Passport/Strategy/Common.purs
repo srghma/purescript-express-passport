@@ -8,7 +8,6 @@ import Node.Express.Passport.Types
 data PassportStrategy
 
 foreign import _setStrategy ::
-  forall user.
   Fn3
     Passport
     String
@@ -16,7 +15,6 @@ foreign import _setStrategy ::
     (Effect Unit)
 
 setStrategy ::
-  forall user.
   Passport ->
   String ->
   PassportStrategy ->

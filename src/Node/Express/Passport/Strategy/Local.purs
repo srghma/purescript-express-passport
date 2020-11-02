@@ -12,6 +12,7 @@ import Data.Nullable (Nullable)
 import Data.Nullable as Nullable
 import Effect.Exception (Error)
 import Node.Express.Types (Request)
+import Node.Express.Passport.Types
 
 type PassportStrategyLocalOptions
   = { usernameField :: String
@@ -31,37 +32,35 @@ newtype Password
 
 derive instance newtypePassword :: Newtype Password _
 
-type PassportStrategyLocal__Implementation__CredentialsVerified user info
-  = EffectFn3 (Nullable Error) (Nullable user) (Nullable info) Unit
+type PassportStrategyLocal__Implementation__CredentialsVerified
+  = EffectFn3 (Nullable Error) (Nullable UserRaw) (Nullable InfoRaw) Unit
 
-type PassportStrategyLocal__Implementation__Verify user info
-  = EffectFn4 Request Username Password (PassportStrategyLocal__Implementation__CredentialsVerified user info) Unit
+type PassportStrategyLocal__Implementation__Verify
+  = EffectFn4 Request Username Password (PassportStrategyLocal__Implementation__CredentialsVerified) Unit
 
-data PassportStrategyLocal__CredentialsVerifiedResult user
+data PassportStrategyLocal__CredentialsVerifiedResult
   = PassportStrategyLocal__CredentialsVerifiedResult__Error Error
   | PassportStrategyLocal__CredentialsVerifiedResult__AuthenticationError
-  | PassportStrategyLocal__CredentialsVerifiedResult__Success user
+  | PassportStrategyLocal__CredentialsVerifiedResult__Success UserRaw
 
-type PassportStrategyLocal__CredentialsVerified user info
-  = { result :: PassportStrategyLocal__CredentialsVerifiedResult user
-    , info :: Maybe info
+type PassportStrategyLocal__CredentialsVerified
+  = { result :: PassportStrategyLocal__CredentialsVerifiedResult
+    , info :: Maybe InfoRaw
     }
     -> Effect Unit
 
-type PassportStrategyLocal__Verify user info
-  = Request -> Username -> Password -> PassportStrategyLocal__CredentialsVerified user info -> Effect Unit
+type PassportStrategyLocal__Verify
+  = Request -> Username -> Password -> PassportStrategyLocal__CredentialsVerified -> Effect Unit
 
 foreign import _passportStrategyLocal ::
-  forall user info.
   Fn2
   PassportStrategyLocalOptions
-  (PassportStrategyLocal__Implementation__Verify user info)
+  (PassportStrategyLocal__Implementation__Verify)
   PassportStrategy
 
 passportStrategyLocal ::
-  forall user info.
   PassportStrategyLocalOptions ->
-  PassportStrategyLocal__Verify user info ->
+  PassportStrategyLocal__Verify ->
   PassportStrategy
 passportStrategyLocal options verify =
   runFn2
